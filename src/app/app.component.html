@@ -17,6 +17,7 @@
     </mat-sidenav>
 
     <mat-sidenav-content>
+      <!-- <button mat-raised-button (click)="isLinear = true" id="toggle-linear">Enable linear mode</button> -->
       <mat-horizontal-stepper [linear]="isLinear" #stepper="matHorizontalStepper">
         <mat-step [stepControl]="firstFormGroup">
           <form [formGroup]="firstFormGroup" style="padding: 15px;">
@@ -31,107 +32,223 @@
                 </td>
               </tr>
             </table>
+
+            <!-- <table *ngIf="NodeList.length>0">
+
+              <tr>
+                <th>Node ID</th>
+                <th>Node Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Edit</th>
+              </tr>
+              <ng-container *ngFor="let item of NodeList;let i=index;">
+                <tr>
+                  <td>
+                    {{item.NodeID}}
+                  </td>
+                  <td>
+                    {{item.NodeName}}
+                  </td>
+                  <td>
+                    {{item.startDate}}
+                  </td>
+                  <td>
+                    {{item.endDate}}
+                  </td>
+                  <td>
+                    <i class="material-icons" (click)="more(item,i)">mode_edit</i>
+                  </td>
+                </tr>
+                <tr *ngIf="view==i">
+                  <td colspan="5">
+                    <div style="border: 1px solid #212121;">
+                      <div class="col-md-12 col-lg-12">
+                          <table class="table">
+                              <tr>
+                                <td>
+                                  <mat-form-field>
+                                    <input matInput placeholder="Search Node" formControlName="searchNode" autocomplete="off" [(ngModel)]="searchNode" required>
+                                  </mat-form-field>
+                                </td>
+                              </tr>
+                            </table>
+                      </div>
+                      
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </table> -->
             <table *ngIf="NodeList.length==0">
               <tr>
                 <td>No Nodes Found</td>
               </tr>
             </table>
+            <!-- <div class="example-containers mat-elevation-z8s"> -->
             <mat-table #table [dataSource]="dataSource" matSort *ngIf="NodeList.length>0">
-                <ng-container matColumnDef="select">
-                    <mat-header-cell *matHeaderCellDef>
-                      <mat-checkbox (change)="$event ? masterToggle() : null"
-                                    [checked]="selection.hasValue() && isAllSelected()"
-                                    [indeterminate]="selection.hasValue() && !isAllSelected()">
-                      </mat-checkbox>
-                    </mat-header-cell>
-                    <mat-cell *matCellDef="let row">
-                      <mat-checkbox (click)="$event.stopPropagation()"
-                                    (change)="$event ? selection.toggle(row) : null"
-                                    [checked]="selection.isSelected(row)">
-                      </mat-checkbox>
-                    </mat-cell>
-                  </ng-container>
-              <!-- Position Column -->
-              <ng-container matColumnDef="NodeID">
-                <mat-header-cell *matHeaderCellDef mat-sort-header> Node ID </mat-header-cell>
-                <mat-cell *matCellDef="let element"> {{element.NodeID}} </mat-cell>
+              <ng-container matColumnDef="SNo">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> S.No. </mat-header-cell>
+                <mat-cell *matCellDef="let element;let s=index"> {{s+1}} </mat-cell>
               </ng-container>
+
 
               <!-- Name Column -->
               <ng-container matColumnDef="NodeName">
                 <mat-header-cell *matHeaderCellDef mat-sort-header> Node Name </mat-header-cell>
                 <mat-cell *matCellDef="let element"> {{element.NodeName}} </mat-cell>
               </ng-container>
-
-              <!-- Weight Column -->
-              <ng-container matColumnDef="startDate">
-                <mat-header-cell *matHeaderCellDef mat-sort-header> Start Date </mat-header-cell>
-                <mat-cell *matCellDef="let element"> {{element.startDate}} </mat-cell>
-              </ng-container>
-
-              <!-- Symbol Column -->
-              <ng-container matColumnDef="endDate">
-                <mat-header-cell *matHeaderCellDef mat-sort-header> End Date </mat-header-cell>
-                <mat-cell *matCellDef="let element"> {{element.endDate}} </mat-cell>
-              </ng-container>
-
-              <ng-container matColumnDef="Edit">
-                <mat-header-cell *matHeaderCellDef mat-sort-header> Edit </mat-header-cell>
-                <mat-cell *matCellDef="let element;let i=index;">
-                  <i class="material-icons" (click)="openDialog()">mode_edit</i>
+              <ng-container matColumnDef="select">
+                <mat-header-cell *matHeaderCellDef>
+                  Select
+                </mat-header-cell>
+                <mat-cell *matCellDef="let element">
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input type="radio" class="form-check-input" name="optionsRadios" #box (click)="isSelected(box.value)" [value]="element.NodeName">
+                    </label>
+                  </div>
                 </mat-cell>
               </ng-container>
-
               <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
               <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
 
             </mat-table>
+            <!-- </div> -->
             <div>
-              <button mat-raised-button matStepperNext>Next</button>
+              <button mat-raised-button matStepperNext *ngIf="isSelectedNode==true">Next</button>
             </div>
           </form>
         </mat-step>
-        <mat-step [stepControl]="secondFormGroup">
-          <form [formGroup]="secondFormGroup" style="padding: 15px;">
-            <ng-template matStepLabel>Geo Boundary Details</ng-template>
-            <h4>Geo Boundary: {{NodeName}}</h4>
+        <mat-step [stepControl]="geoBoundaryHeadForm">
+          <form [formGroup]="geoBoundaryHeadForm" style="padding: 15px;">
+            <ng-template matStepLabel>Geo Boundary Header</ng-template>
+            <h4>Node Name: {{NodeName}}</h4>
             <table class="table">
               <tr>
                 <td>
                   <mat-form-field>
-                    <input matInput placeholder="Country" formControlName="country" required>
-                  </mat-form-field>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <mat-form-field>
-                    <input matInput placeholder="State" formControlName="state" required>
+                    <input matInput placeholder="Geo Boundary Head" formControlName="geoBoundaryHead" required>
                   </mat-form-field>
                 </td>
               </tr>
             </table>
             <div>
               <button mat-raised-button matStepperPrevious>Back</button>
-              <button mat-raised-button matStepperNext>Next</button>
+              <button mat-raised-button matStepperNext (click)="onSubmitStep()">Next</button>
+            </div>
+          </form>
+        </mat-step>
+        <mat-step [stepControl]="secondFormGroup">
+          <form [formGroup]="secondFormGroup" style="padding: 15px;">
+            <ng-template matStepLabel>Geo Boundary Details</ng-template>
+            <h4>Geo Boundary Name: {{geoBoundaryHead}}</h4>
+            <mat-grid-list cols="2" rowHeight="2:1" class="paddingClass">
+              <mat-grid-tile class="trans">
+                <p>Drag Country's:</p>
+              </mat-grid-tile>
+              <mat-grid-tile class="trans">
+                <p>Drop Country's:</p>
+              </mat-grid-tile>
+            </mat-grid-list>
+            <mat-grid-list cols="2" rowHeight="2:1">
+              <mat-grid-tile class="coloss" style="overflow: auto;">
+
+                <mat-list role="list">
+                  <mat-list-item role="listitem" class="borderClass" *ngFor="let link of citiesList" [dragDirective]='link' [dragHightlight]="'highlight'"
+                    (releaseDrop)="releaseDrop($event)">
+                    {{ link }}
+                  </mat-list-item>
+                </mat-list>
+              </mat-grid-tile>
+              <mat-grid-tile class="coloss" style="overflow: auto;" dropDirective (dropEvent)="addDropItem($event)" class="droppable" [dropHighlight]="'highlight'">
+
+                <mat-list role="list">
+                  <mat-list-item role="listitem" *ngFor="let item of itemsDropped" class="borderClass">
+                    {{item}}
+                  </mat-list-item>
+                </mat-list>
+              </mat-grid-tile>
+            </mat-grid-list>
+            <table class="table">
+              <tr>
+                <td>
+                  <mat-form-field>
+                    <input matInput [matDatepicker]="picker" placeholder="Choose a Start Date" formControlName="startDate" #sda (dateChange)="onChangeStartDate(sda.value)">
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                  </mat-form-field>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <mat-form-field>
+                    <input matInput [matDatepicker]="picker1" placeholder="Choose a End Date" formControlName="endDate" #end (dateChange)="onChangeEndDate(end.value)">
+                    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                    <mat-datepicker #picker1></mat-datepicker>
+                  </mat-form-field>
+                </td>
+              </tr>
+            </table>
+            <div>
+              <button mat-raised-button matStepperPrevious>Back</button>
+              <button mat-raised-button matStepperNext (click)="onSubmitThird()">Next</button>
             </div>
           </form>
         </mat-step>
         <mat-step [stepControl]="thirdFormGroup">
-            <form [formGroup]="thirdFormGroup" style="padding: 15px;">
-          <ng-template matStepLabel>Confirm the Details</ng-template>
-          <table style="padding: 15px 10px 0px 5px;">
-            <tr>
-              <td>
-                <mat-form-field>
-                  <input type="tel" matInput placeholder="Reason Code" formControlName="reasonCode" required>
-                </mat-form-field>
-            </tr>
-          </table>
-          <div style="padding: 15px 10px 15px 10px;">
-            <button mat-raised-button matStepperPrevious>Back</button>
-            <button mat-raised-button (click)="save()">Submit</button>
-          </div>
+          <form [formGroup]="thirdFormGroup" style="padding: 15px;">
+            <ng-template matStepLabel>Confirm the Details</ng-template>
+            <table>
+              <tr>
+                <th style="padding: 5px;text-align: left;">Node Name:</th>
+                <td>
+                  {{NodeName}}
+                </td>
+              </tr>
+              <tr>
+                <th style="padding: 5px;text-align: left;">Geo Boundary Header: </th>
+                <td>
+                  {{ geoBoundaryHead }}
+                </td>
+              </tr>
+              <tr>
+                <th style="padding: 5px;text-align: left;">Start Date: </th>
+                <td>
+                  {{ startDate }}
+                </td>
+              </tr>
+              <tr>
+                <th style="padding: 5px;text-align: left;">End Date: </th>
+                <td>
+                  {{ endDate }}
+                </td>
+              </tr>
+            </table>
+            <table>
+              <tr>
+                <th>S.No.</th>
+                <th>Country Name</th>
+              </tr>
+              <tr *ngFor="let push of itemsDropped;let pu=index;">
+                <td>{{ pu+1 }}</td>
+                <td>
+                  {{ push }}
+                </td>
+              </tr>
+            </table>
+            <table style="padding: 15px 10px 0px 5px;">
+              <tr>
+                <td>
+                  <mat-form-field>
+                    <input type="tel" matInput placeholder="Reason Code" formControlName="reasonCode" required>
+                  </mat-form-field>
+              </tr>
+            </table>
+            <div style="padding: 15px 10px 15px 10px;">
+              <button mat-raised-button matStepperPrevious>Back</button>
+              <button mat-raised-button (click)="save()">Submit</button>
+            </div>
           </form>
         </mat-step>
       </mat-horizontal-stepper>

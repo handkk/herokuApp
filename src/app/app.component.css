@@ -69,3 +69,23 @@ mat-table {
 .mat-column-select {
   overflow: visible;
 }
+.paddingClass {
+  padding-bottom: 30px!important;
+}
+.trans {
+  background: transparent;
+  padding-top: 25px!important;
+}
+.coloss {
+  background: lightblue;
+}
+.borderClass {
+  border: 1px solid #212121;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.snacks {
+  position: absolute;
+  top: 100px;
+}
